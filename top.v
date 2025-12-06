@@ -4,6 +4,7 @@ module top (
     input  wire btn1,
     input  wire btn2,
     input  wire btn3,
+    input  wire btn4,   // ★ 모스 재생 버튼
 
     output wire piezo_out,
     output wire led_long,
@@ -27,34 +28,37 @@ module top (
     wire       lcd_char_valid;
     wire       lcd_done;
     wire       error_flag;
-    wire       lcd_ready;      // ★ LCD 준비 신호
+    wire       lcd_ready;
 
-    // 1) 모스 입력 + 문자 변환
+    // 모스 입력 + 문자 변환 + LCD 출력 + 재생
     morse_core u_morse (
         .clk(clk),
         .rst_n(rst_n),
         .btn1(btn1),
         .btn2(btn2),
         .btn3(btn3),
+        .btn4(btn4),
+
         .piezo_out(piezo_out),
         .led_long(led_long),
         .led_short(led_short),
+
         .lcd_char(lcd_char),
         .lcd_char_valid(lcd_char_valid),
         .lcd_done(lcd_done),
         .error_flag_out(error_flag),
 
-        .lcd_ready(lcd_ready)          // ★ 추가
+        .lcd_ready(lcd_ready)
     );
 
-    // 2) LCD 컨트롤러
+    // LCD 컨트롤러
     lcd_hd44780_ctrl u_lcd (
         .clk(clk),
         .rst_n(rst_n),
         .char_in(lcd_char),
         .char_valid(lcd_char_valid),
 
-        .ready(lcd_ready),             // ★ morse_core로 넘길 준비 신호
+        .ready(lcd_ready),
 
         .TLCD_D0(TLCD_D0),
         .TLCD_D1(TLCD_D1),
