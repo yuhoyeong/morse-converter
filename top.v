@@ -4,13 +4,18 @@ module top (
     input  wire btn1,
     input  wire btn2,
     input  wire btn3,
-    input  wire btn4,   // ★ 모스 재생 버튼
+    input  wire btn4,
 
     output wire piezo_out,
     output wire led_long,
     output wire led_short,
 
-    // LCD 핀 (보드 핀으로 나감)
+    // === 추가된 RGB LED 포트 ===
+    output wire led_r,
+    output wire led_g,
+    output wire led_b,
+
+    // LCD 핀
     output wire TLCD_D0,
     output wire TLCD_D1,
     output wire TLCD_D2,
@@ -24,13 +29,16 @@ module top (
     output wire TLCD_RW
 );
 
+    // 내부 연결 신호
     wire [7:0] lcd_char;
     wire       lcd_char_valid;
     wire       lcd_done;
-    wire       error_flag;
     wire       lcd_ready;
+    wire       error_flag;
 
-    // 모스 입력 + 문자 변환 + LCD 출력 + 재생
+    // ============================
+    //  morse_core 인스턴스
+    // ============================
     morse_core u_morse (
         .clk(clk),
         .rst_n(rst_n),
@@ -51,7 +59,9 @@ module top (
         .lcd_ready(lcd_ready)
     );
 
-    // LCD 컨트롤러
+    // ============================
+    //  LCD Controller
+    // ============================
     lcd_hd44780_ctrl u_lcd (
         .clk(clk),
         .rst_n(rst_n),
@@ -70,7 +80,17 @@ module top (
         .TLCD_D7(TLCD_D7),
         .TLCD_RS(TLCD_RS),
         .TLCD_RW(TLCD_RW),
-        .TLCD_E (TLCD_E)
+        .TLCD_E(TLCD_E)
+    );
+
+    // ============================
+    //  RGB LED Control Module 추가
+    // ============================
+    rgb_ctrl u_rgb (
+        .error_flag(error_flag),
+        .led_r(led_r),
+        .led_g(led_g),
+        .led_b(led_b)
     );
 
 endmodule
